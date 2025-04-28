@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body>
+    <h2>Login Page</h2>
+
+    <form id="loginForm">
+        <input type="text" id="username" placeholder="Username" required><br><br>
+        <input type="password" id="password" placeholder="Password" required><br><br>
+        <button type="submit">Login</button>
+    </form>
+
+    <p id="error" style="color: red;"></p>
+
+    <script>
+        document.getElementById("loginForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            console.log("Attempting to log in with:", { username, password });
+            const response = await fetch("/api/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ username, password }),
+                credentials: "include" // Important: allow cookies
+            });
+            console.log("Response status:", response.status);
+            console.log("Response headers:", response);
+
+            if (response.ok) {
+                // window.location.href = "dashboard.html"; // Go to dashboard
+                console.log("Login successful, redirecting to dashboard...");
+                const data = await response.json();
+                console.log("Received data:", data);
+                localStorage.setItem("token", data.token); // Store token in local storage
+                window.location.href = "dashboard.html"; // Redirect to dashboard
+            } else {
+                const errorText = await response.text();
+                document.getElementById("error").textContent = errorText || "Login failed";
+            }
+        });
+    </script>
+</body>
+</html>
